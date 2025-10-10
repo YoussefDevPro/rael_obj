@@ -1,16 +1,21 @@
 mod obj_load;
 use crossterm::{
     cursor::{Hide, Show},
-    event::{poll, read, Event, KeyCode, KeyEvent},
+    event::{Event, KeyCode, KeyEvent, poll, read},
     execute,
     style::Print,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
+use obj::Obj;
+use obj::load_obj;
 use obj_load::draw_obj;
 use rael::{Canvas, Color};
 use std::collections::HashSet;
-use std::io::{stdout, Write};
+use std::fs::File;
+use std::io::BufReader;
+use std::io::{Write, stdout};
 use std::time::Duration;
+
 struct CleanUp;
 
 impl Drop for CleanUp {
@@ -21,6 +26,9 @@ impl Drop for CleanUp {
 }
 
 fn main() -> std::io::Result<()> {
+    let input = BufReader::new(File::open("source/blahaj_tri.obj").expect("Failed to open OBJ"));
+    let model: Obj = load_obj(input).expect("Failed to load OBJ");
+
     let _clean_up = CleanUp;
     enable_raw_mode()?;
     let mut stdout = stdout();
@@ -30,11 +38,10 @@ fn main() -> std::io::Result<()> {
 
     // Mutable properties for the object
     let mut rotation = [20, 0, 0];
-    let mut position = [0.0, 0.0, 0.7];
-    let mut fov = 15.0;
+    let mut position = [0.0, 0.0, 1.0];
+    let mut fov = 1.0;
     let scale = 2.0;
     let center = [0.0, 0.0, 0.0];
-    let path = "source/blahaj_tri.obj".to_string();
 
     loop {
         if poll(Duration::from_millis(16))? {
@@ -68,7 +75,7 @@ fn main() -> std::io::Result<()> {
         let mut canvas = Canvas::new(width as usize, height as usize, Color { r: 0, g: 0, b: 0 });
 
         let blahaj = draw_obj(
-            path.clone(),
+            &model,
             center,
             scale,
             rotation,
