@@ -1,19 +1,20 @@
 mod obj_load;
 use crossterm::{
     cursor::{Hide, Show},
-    event::{Event, KeyCode, KeyEvent, poll, read},
+    event::{poll, read, Event, KeyCode, KeyEvent},
     execute,
     style::Print,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use obj::Obj;
 use obj::load_obj;
+use obj::{Obj, TexturedVertex};
 use obj_load::draw_obj;
+use obj_load::light::{Light, LightKind};
+use obj_load::texture::Texture;
 use rael::{Canvas, Color};
-use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufReader;
-use std::io::{Write, stdout};
+use std::io::{stdout, Write};
 use std::time::Duration;
 
 struct CleanUp;
@@ -26,8 +27,42 @@ impl Drop for CleanUp {
 }
 
 fn main() -> std::io::Result<()> {
+    // DATA NEEDED FOR DA FUNCTION
     let input = BufReader::new(File::open("source/blahaj_tri.obj").expect("Failed to open OBJ"));
-    let model: Obj = load_obj(input).expect("Failed to load OBJ");
+    let model: Obj<TexturedVertex> = load_obj(input).expect("Failed to load OBJ");
+
+    let lights = vec![
+        Light {
+            kind: LightKind::Ambient { intensity: 0.2 },
+            color: Color {
+                r: 255,
+                g: 255,
+                b: 255,
+            },
+        },
+        Light {
+            kind: LightKind::Point {
+                position: (2.0, 1.0, 1.0),
+                intensity: 1.0,
+            },
+            color: Color {
+                r: 255,
+                g: 180,
+                b: 180,
+            },
+        },
+        Light {
+            kind: LightKind::Directional {
+                direction: (0.0, 0.0, 0.0),
+            },
+            color: Color {
+                r: 0,
+                g: 255,
+                b: 255,
+            },
+        },
+    ];
+    let texture = Texture::from_file("source/texture.001.png");
 
     let _clean_up = CleanUp;
     enable_raw_mode()?;
@@ -39,8 +74,8 @@ fn main() -> std::io::Result<()> {
     // Mutable properties for the object
     let mut rotation = [20, 0, 0];
     let mut position = [0.0, 0.0, 1.0];
-    let mut fov = 1.0;
-    let scale = 2.0;
+    let mut fov = -1.0;
+    let scale = 0.2;
     let center = [0.0, 0.0, 0.0];
 
     loop {
@@ -81,15 +116,14 @@ fn main() -> std::io::Result<()> {
             rotation,
             position,
             width.into(),
-            height.into(),
+            (height * 2).into(),
             fov,
+            &lights,
+            &texture,
         );
 
-        let mut seen = HashSet::new();
         for (x, y, color) in blahaj {
-            if seen.insert((x, y)) {
-                canvas.set_pixel(x as usize, y as usize, 1, color);
-            }
+            canvas.set_pixel(x as usize, y as usize, 1, color);
         }
         let output = canvas.render();
         execute!(stdout, Print(output))?;
