@@ -33,7 +33,7 @@ fn main() -> std::io::Result<()> {
 
     let lights = vec![
         Light {
-            kind: LightKind::Ambient { intensity: 0.2 },
+            kind: LightKind::Ambient { intensity: 0.15 },
             color: Color {
                 r: 255,
                 g: 255,
@@ -42,23 +42,13 @@ fn main() -> std::io::Result<()> {
         },
         Light {
             kind: LightKind::Point {
-                position: (2.0, 1.0, 1.0),
-                intensity: 1.0,
+                position: (5.0, 8.0, 1.0),
+                intensity: 2.0,
             },
             color: Color {
                 r: 255,
                 g: 180,
                 b: 180,
-            },
-        },
-        Light {
-            kind: LightKind::Directional {
-                direction: (0.0, 0.0, 0.0),
-            },
-            color: Color {
-                r: 0,
-                g: 255,
-                b: 255,
             },
         },
     ];
@@ -72,9 +62,9 @@ fn main() -> std::io::Result<()> {
     let (width, height) = crossterm::terminal::size()?;
 
     // Mutable properties for the object
-    let mut rotation = [20, 0, 0];
+    let mut rotation = [0, 0, 0];
     let mut position = [0.0, 0.0, 1.0];
-    let mut fov = -1.0;
+    let mut fov = -4.0;
     let scale = 0.2;
     let center = [0.0, 0.0, 0.0];
 
@@ -116,7 +106,7 @@ fn main() -> std::io::Result<()> {
             rotation,
             position,
             width.into(),
-            (height * 2).into(),
+            height.into(),
             fov,
             &lights,
             &texture,

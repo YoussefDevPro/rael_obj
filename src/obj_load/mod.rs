@@ -159,8 +159,7 @@ pub fn draw_obj(
     texture: &Texture,
 ) -> Vec<(i32, i32, Color)> {
     let mut pixels = Vec::new();
-    let mut depth_buffer = vec![f32::INFINITY; (width * height) as usize];
-
+    let mut depth_buffer = vec![f32::INFINITY; (width * (height * 2)) as usize];
     for face in model.indices.chunks(3) {
         if face.len() < 3 {
             continue;

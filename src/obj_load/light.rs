@@ -53,9 +53,9 @@ pub fn compute_light(
             LightKind::Directional { direction } => {
                 let dir = normalize(direction);
                 let diff = clamp01(dot(normal, dir));
-                r += light.color.r as f32 * diff;
-                g += light.color.g as f32 * diff;
-                b += light.color.b as f32 * diff;
+                r += (light.color.r as f32 / 255.0) * diff;
+                g += (light.color.g as f32 / 255.0) * diff;
+                b += (light.color.b as f32 / 255.0) * diff;
             }
             LightKind::Point {
                 position,
@@ -67,21 +67,27 @@ pub fn compute_light(
                     position.2 - frag_pos.2,
                 ));
                 let diff = clamp01(dot(normal, light_dir)) * intensity;
-                r += light.color.r as f32 * diff;
-                g += light.color.g as f32 * diff;
-                b += light.color.b as f32 * diff;
+                r += (light.color.r as f32 / 255.0) * diff;
+                g += (light.color.g as f32 / 255.0) * diff;
+                b += (light.color.b as f32 / 255.0) * diff;
             }
             LightKind::Ambient { intensity } => {
-                r += light.color.r as f32 * intensity;
-                g += light.color.g as f32 * intensity;
-                b += light.color.b as f32 * intensity;
+                r += (light.color.r as f32 / 255.0) * intensity;
+                g += (light.color.g as f32 / 255.0) * intensity;
+                b += (light.color.b as f32 / 255.0) * intensity;
             }
         }
     }
 
+    r = (base_color.r as f32 / 255.0) * r;
+    g = (base_color.g as f32 / 255.0) * g;
+    b = (base_color.b as f32 / 255.0) * b;
+
+    let tone_map = |x: f32| 255.0 * (x / (x + 1.0));
+
     Color {
-        r: (base_color.r as f32 * (r / 255.0)).min(255.0) as u8,
-        g: (base_color.g as f32 * (g / 255.0)).min(255.0) as u8,
-        b: (base_color.b as f32 * (b / 255.0)).min(255.0) as u8,
+        r: tone_map(r).clamp(0.0, 255.0) as u8,
+        g: tone_map(g).clamp(0.0, 255.0) as u8,
+        b: tone_map(b).clamp(0.0, 255.0) as u8,
     }
 }
