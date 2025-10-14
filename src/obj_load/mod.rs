@@ -1,14 +1,17 @@
+//! This module contains the logic for loading and rendering 3D models in the OBJ format.
 use crate::obj_load::light::{compute_light, Light};
 use obj::{Obj, TexturedVertex};
 use rael::Color;
 pub mod light;
 pub mod texture;
-use crate::Texture;
+use crate::obj_load::texture::Texture;
 
+/// Converts degrees to radians.
 fn deg_to_rad(deg: f32) -> f32 {
     deg * std::f32::consts::PI / 180.0
 }
 
+/// Rotates a 3D vector by the given rotation in degrees.
 fn rotate(v: [f32; 3], rotation_deg: [i32; 3]) -> [f32; 3] {
     let (mut x, mut y, mut z) = (v[0], v[1], v[2]);
 
@@ -40,6 +43,7 @@ fn rotate(v: [f32; 3], rotation_deg: [i32; 3]) -> [f32; 3] {
     [x, y, z]
 }
 
+/// Computes the normal of a triangle.
 fn compute_normal(
     v0: &(f32, f32, f32),
     v1: &(f32, f32, f32),
@@ -56,6 +60,7 @@ fn compute_normal(
     (n.0 / len, n.1 / len, n.2 / len)
 }
 
+/// Projects a 3D vertex to the screen.
 fn project_to_screen(v: [f32; 3], width: i32, height: i32, fov: f32) -> Option<(i32, i32)> {
     if v[2] <= 0.0 {
         return None;
@@ -69,6 +74,7 @@ fn project_to_screen(v: [f32; 3], width: i32, height: i32, fov: f32) -> Option<(
     Some((x as i32, y as i32))
 }
 
+/// Transforms a vertex by scaling, rotating, and translating it.
 fn transform_vertex(
     v: [f32; 3],
     center: [f32; 3],
@@ -86,6 +92,11 @@ fn transform_vertex(
     [p[0] + position[0], p[1] + position[1], p[2] + position[2]]
 }
 
+/// Fills a triangle with pixels.
+///
+/// This function uses barycentric coordinates to interpolate the texture coordinates
+/// and depth of each pixel in the triangle. It also performs depth testing to
+/// ensure that only the closest pixels are drawn.
 fn fill_triangle(
     p0: (i32, i32),
     p1: (i32, i32),
@@ -146,6 +157,11 @@ fn fill_triangle(
     pixels
 }
 
+/// Draws an OBJ model to the screen.
+///
+/// This function iterates over the faces of the model and draws each triangle
+/// to the screen. It also performs transformations on the vertices to position,
+/// scale, and rotate the model.
 pub fn draw_obj(
     model: &Obj<TexturedVertex>,
     center: [f32; 3],
