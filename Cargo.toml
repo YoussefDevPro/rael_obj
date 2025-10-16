@@ -2,6 +2,12 @@
 name = "rael_obj"
 version = "0.0.1"
 edition = "2024"
+description = "a simple function to load obj file with lightning and transform, to draw it using rael"
+license = "MIT"
+repository = "https://github.com/YoussefDevPro/rael_obj"
+homepage = "https://github.com/YoussefDevPro/rael_obj"
+keywords = ["terminal", "tui", "console", "graphics", "renderer"]
+categories = ["command-line-utilities", "games"]
 
 [dependencies]
 crossterm = "0.29.0"
