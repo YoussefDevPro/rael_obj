@@ -821,16 +821,16 @@ checksum = "69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f"
 
 [[package]]
 name = "rael"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83873aa59f28e007c5f59d6e03f65842190bcfc84b0e8fa4b569c9c954a7fd79"
+checksum = "14a73249fa73eb0eb15e9b4c54450c5929e3086422c46938d70ae424b1c127c7"
 dependencies = [
  "crossterm",
 ]
 
 [[package]]
 name = "rael_obj"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "crossterm",
  "image",

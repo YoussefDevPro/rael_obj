@@ -1,6 +1,6 @@
 [package]
 name = "rael_obj"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 description = "a simple function to load obj file with lightning and transform, to draw it using rael"
 license = "MIT"
@@ -13,5 +13,5 @@ categories = ["command-line-utilities", "games"]
 crossterm = "0.29.0"
 image = "0.25.8"
 obj-rs = "0.7.4"
-rael = "0.1.0"
+rael = "0.1.2"
 rayon = "1.11.0"

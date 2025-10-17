@@ -2,6 +2,7 @@
 use crate::obj_load::light::{compute_light, Light};
 use obj::{Obj, TexturedVertex};
 use rael::Color;
+use crate::Canvas;
 pub mod light;
 pub mod texture;
 use crate::obj_load::texture::Texture;
@@ -157,25 +158,37 @@ fn fill_triangle(
     pixels
 }
 
-/// Draws an OBJ model to the screen.
+/// Renders a 3D model to a list of pixels.
 ///
-/// This function iterates over the faces of the model and draws each triangle
-/// to the screen. It also performs transformations on the vertices to position,
-/// scale, and rotate the model.
+/// This function takes a model and rendering parameters and returns a vector of
+/// `(x, y, Color)` tuples that can be drawn on a `rael::Canvas`.
+///
+/// # Arguments
+///
+/// * `model` - The 3D model to render.
+/// * `center` - The center point of the model, used for scaling and rotation.
+/// * `scale` - A factor to scale the model up or down.
+/// * `rotation` - The rotation of the model in degrees around the X, Y, and Z axes.
+/// * `position` - The 3D position of the model in the scene.
+/// * `canvas` - The `rael::Canvas` to render onto. The canvas's dimensions are used for projection.
+/// * `fov` - The field of view for the perspective projection.
+/// * `lights` - A slice of `Light` sources for shading the model.
+/// * `texture` - The texture to apply to the model.
 pub fn draw_obj(
     model: &Obj<TexturedVertex>,
     center: [f32; 3],
     scale: f32,
     rotation: [i32; 3],
     position: [f32; 3],
-    width: i32,
-    height: i32,
+    canvas: &Canvas,
     fov: f32,
     lights: &[Light],
     texture: &Texture,
 ) -> Vec<(i32, i32, Color)> {
+    let width = canvas.final_width as i32;
+    let height = canvas.final_height as i32;
     let mut pixels = Vec::new();
-    let mut depth_buffer = vec![f32::INFINITY; (width * (height * 2)) as usize];
+    let mut depth_buffer = vec![f32::INFINITY; (width * height) as usize];
     for face in model.indices.chunks(3) {
         if face.len() < 3 {
             continue;
